@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梦境论坛</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231a73e8' d='M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z'/%3E%3Ccircle cx='8' cy='11' r='1.2' fill='%23fff'/%3E%3Ccircle cx='12' cy='11' r='1.2' fill='%23fff'/%3E%3Ccircle cx='16' cy='11' r='1.2' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    color: #222;
+    min-height: 100vh;
+  }
+
+  /* ===== 引导栏（蓝色打底白字） ===== */
+  .navbar {
+    background: #1a73e8;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+  }
+  .nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    white-space: nowrap;
+  }
+  .nav-links {
+    display: flex;
+    gap: 22px;
+    flex: 1;
+  }
+  .nav-item {
+    font-size: 15px;
+    color: #fff;
+    padding: 6px 2px;
+    cursor: default;
+    user-select: none;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-item:hover { border-bottom-color: rgba(255,255,255,.75); }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 18px;
+    padding: 6px 14px;
+    width: 220px;
+  }
+  .search-box svg { flex-shrink: 0; }
+  .search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    font-size: 16px;
+    width: 100%;
+  }
+  .search-box input::placeholder { color: rgba(255,255,255,.72); }
+
+  /* ===== 帖子列表 ===== */
+  .thread-list {
+    max-width: 960px;
+    margin: 28px auto;
+    padding: 0 20px;
+  }
+  .thread {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #e6e8eb;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    transition: box-shadow .2s ease, background .2s ease;
+  }
+  .thread .t-icon { flex-shrink: 0; }
+  .thread .t-title {
+    flex: 1;
+    font-size: 16px;
+    color: #1f1f1f;
+  }
+  .thread .t-meta {
+    flex-shrink: 0;
+    font-size: 13px;
+    color: #9aa0a6;
+  }
+  /* 可打开的帖子：可点击 */
+  .thread.openable { cursor: pointer; }
+  .thread.openable:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    background: #f7faff;
+    border-color: #c9d8fb;
+  }
+  /* 不可打开的帖子：无响应 */
+  .thread.locked { cursor: default; }
+  .thread.locked .t-title { color: #5f6368; }
+
+  /* ===== 帖子详情弹层 ===== */
+  .thread-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  .thread-modal.open { display: flex; }
+  .modal-card {
+    width: min(640px, 90vw);
+    max-height: 82vh;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  }
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+  }
+  .modal-head .h-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f1f1f;
+  }
+  .close-btn {
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    line-height: 1;
+    color: #777;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .close-btn:hover { background: #f1f3f4; color: #222; }
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .modal-meta {
+    font-size: 13px;
+    color: #9aa0a6;
+    margin-bottom: 16px;
+  }
+  .modal-content {
+    font-size: 15px;
+    line-height: 1.9;
+    color: #333;
+    min-height: 120px;
+  }
+  .modal-content .placeholder {
+    color: #b0b6bc;
+    font-size: 14px;
+  }
+
+  /* ===== 登录入口 ===== */
+  .login-btn {
+    font-size: 14px;
+    color: #fff;
+    padding: 7px 20px;
+    border: 1px solid rgba(255,255,255,.65);
+    border-radius: 18px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: background .2s ease;
+  }
+  .login-btn:hover { background: rgba(255,255,255,.16); }
+
+  /* ===== 登录弹窗 ===== */
+  .login-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+  }
+  .login-modal.open { display: flex; }
+  .login-card {
+    width: min(400px, 90vw);
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  }
+  .login-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+  }
+  .login-head h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f1f1f;
+  }
+  .login-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .login-body input {
+    font-size: 16px;
+    padding: 11px 14px;
+    border: 1px solid #dfe1e5;
+    border-radius: 8px;
+    outline: none;
+    color: #222;
+    background: #fff;
+  }
+  .login-body input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,.15); }
+  .hint-box {
+    font-size: 14px;
+    color: #5f6368;
+    background: #f6f8fb;
+    border: 1px dashed #c9d8fb;
+    border-radius: 8px;
+    padding: 9px 12px;
+    text-align: center;
+    letter-spacing: .06em;
+  }
+  .login-error {
+    display: none;
+    font-size: 14px;
+    color: #d93025;
+    text-align: center;
+  }
+  .login-error.show { display: block; }
+  .login-submit {
+    font-size: 15px;
+    padding: 11px 0;
+    border: none;
+    border-radius: 8px;
+    background: #1a73e8;
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: .12em;
+  }
+  .login-submit:hover { background: #1765cc; }
+</style>
+</head>
+<body>
+
+  <!-- 引导栏 -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <div class="logo">梦境论坛</div>
+      <nav class="nav-links">
+        <span class="nav-item">首页</span>
+        <span class="nav-item">论坛帖子</span>
+        <span class="nav-item">发布帖子</span>
+      </nav>
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input type="text" placeholder="搜索帖子…" autocomplete="off">
+      </div>
+      <span class="login-btn" id="loginBtn" tabindex="0">登录</span>
+    </div>
+  </header>
+
+  <!-- 帖子列表 -->
+  <main class="thread-list">
+    <article class="thread openable" id="threadOpen" tabindex="0">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5z"/></svg>
+      <h2 class="t-title">最近总是梦到一个人咋办</h2>
+      <span class="t-meta">匿名用户 · 今天</span>
+    </article>
+
+    <article class="thread locked" id="threadLocked1">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5z"/></svg>
+      <h2 class="t-title">有没有做清醒梦的教程</h2>
+      <span class="t-meta">匿名用户 · 昨天</span>
+    </article>
+
+    <article class="thread locked" id="threadLocked2">
+      <svg class="t-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5z"/></svg>
+      <h2 class="t-title">最近总是做噩梦咋办</h2>
+      <span class="t-meta">匿名用户 · 3 天前</span>
+    </article>
+  </main>
+
+  <!-- 帖子详情弹层 -->
+  <div class="thread-modal" id="threadModal">
+    <div class="modal-card" role="dialog" aria-label="帖子详情">
+      <div class="modal-head">
+        <div class="h-title">最近总是梦到一个人咋办</div>
+        <button class="close-btn" id="closeModal" aria-label="关闭">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-meta">匿名用户 · 今天</p>
+        <div class="modal-content">
+          <p class="placeholder">（正文待补充——后续剧情内容将在此显示）</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 登录弹窗 -->
+  <div class="login-modal" id="loginModal">
+    <div class="login-card" role="dialog" aria-label="登录">
+      <div class="login-head">
+        <h3>登录</h3>
+        <button class="close-btn" id="closeLogin" aria-label="关闭">&#10005;</button>
+      </div>
+      <div class="login-body">
+        <input type="text" id="loginAccount" placeholder="账号" autocomplete="off" spellcheck="false">
+        <input type="password" id="loginPassword" placeholder="密码" autocomplete="off">
+        <div class="hint-box">姓名+生日</div>
+        <p class="login-error" id="loginError">账号或密码不对</p>
+        <button class="login-submit" id="loginSubmit">登录</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ===== 引导栏：点击不响应 ===== */
+  document.querySelectorAll('.nav-item').forEach(function (item) {
+    item.addEventListener('click', function () { /* 无操作 */ });
+  });
+
+  /* ===== 帖子交互 ===== */
+  var modal = document.getElementById('threadModal');
+
+  /* 只有「最近总是梦到一个人咋办」可以打开 */
+  document.getElementById('threadOpen').addEventListener('click', function () {
+    modal.classList.add('open');
+  });
+  document.getElementById('threadOpen').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { modal.classList.add('open'); }
+  });
+
+  /* 另外两个帖子：点击无响应 */
+  document.getElementById('threadLocked1').addEventListener('click', function () { /* 无操作 */ });
+  document.getElementById('threadLocked2').addEventListener('click', function () { /* 无操作 */ });
+
+  /* 关闭详情 */
+  document.getElementById('closeModal').addEventListener('click', function () {
+    modal.classList.remove('open');
+  });
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) { modal.classList.remove('open'); }
+  });
+
+  /* ===== 登录 ===== */
+  var NEXT_PAGE = 'next.html'; /* 登录成功后的跳转目标（待定，改这里） */
+  var CORRECT_ACCOUNT = '美';
+  var CORRECT_PASSWORD = 'yxm19980101';
+
+  var loginModal = document.getElementById('loginModal');
+  var loginError = document.getElementById('loginError');
+
+  function clearLoginError() {
+    loginError.classList.remove('show');
+  }
+
+  function doLogin() {
+    var acc = document.getElementById('loginAccount').value.trim();
+    var pwd = document.getElementById('loginPassword').value;
+    if (acc === CORRECT_ACCOUNT && pwd === CORRECT_PASSWORD) {
+      window.location.href = NEXT_PAGE;
+    } else {
+      loginError.classList.add('show');
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginPassword').focus();
+    }
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', function () {
+    loginModal.classList.add('open');
+    document.getElementById('loginAccount').focus();
+  });
+  document.getElementById('closeLogin').addEventListener('click', function () {
+    loginModal.classList.remove('open');
+    clearLoginError();
+  });
+  document.getElementById('loginSubmit').addEventListener('click', doLogin);
+  document.getElementById('loginPassword').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { doLogin(); }
+  });
+  document.getElementById('loginAccount').addEventListener('input', clearLoginError);
+  document.getElementById('loginPassword').addEventListener('input', clearLoginError);
+  loginModal.addEventListener('click', function (e) {
+    if (e.target === loginModal) {
+      loginModal.classList.remove('open');
+      clearLoginError();
+    }
+  });
+</script>
+</body>
+</html>

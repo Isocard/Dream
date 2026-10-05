@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梦 · 李安安</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' d='M12 3a9 9 0 1 0 9 9h-9V3z'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #000000;
+    --text: #d8d8d8;
+    --dim: #5c5c5c;
+    --accent: #e6e6e6;
+    --danger: #b3423a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .stage {
+    width: min(640px, 88vw);
+    padding: 48px 8px;
+    text-align: center;
+  }
+  .opening {
+    font-size: clamp(16px, 2.2vw, 20px);
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    min-height: 8em;
+    text-align: left;
+    text-indent: 2em;
+  }
+  .opening::after {
+    content: "▍";
+    color: var(--accent);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .lock {
+    margin-top: 40px;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .lock.show { opacity: 1; }
+
+  .lock-input-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  #codeInput {
+    width: 200px;
+    padding: 12px 16px;
+    font-size: 18px;
+    letter-spacing: 0.35em;
+    text-align: center;
+    color: var(--accent);
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #codeInput:focus {
+    border-color: #7a7a7a;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  #unlockBtn {
+    padding: 12px 28px;
+    font-size: 15px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  #unlockBtn:hover {
+    border-color: #999;
+    background: #111;
+  }
+  .hint {
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+  }
+  .error {
+    display: none;
+    margin-top: 16px;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    color: var(--danger);
+  }
+  .error.show { display: block; animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+</style>
+</head>
+<body>
+  <main class="stage">
+    <p class="opening" id="opening" aria-label="开场白"></p>
+
+    <div class="lock" id="lockBox" aria-hidden="true">
+      <div class="lock-input-row">
+        <input type="password" id="codeInput" maxlength="6" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="密码" aria-label="密码" disabled>
+        <button id="unlockBtn" disabled>解锁</button>
+      </div>
+      <p class="hint">提示：开场白里藏着进入下一页的密码</p>
+      <p class="error" id="errorMsg" role="alert">密码错误</p>
+    </div>
+  </main>
+
+<script>
+  /* ===== 可配置项 ===== */
+  var NEXT_PAGE = 'PC.html';     // 下一关页面文件名
+  var PASSWORD  = '970105';      // 正确密码
+
+  var openingText = "这几天夜里，我都会梦到一个模糊的人脸，她自称李安安。这个梦困扰了我很久，所以我打算上网搜索一下关于这种梦的信息。（电脑密码是970105）";
+
+  var openingEl = document.getElementById('opening');
+  var lockBox   = document.getElementById('lockBox');
+  var input     = document.getElementById('codeInput');
+  var btn       = document.getElementById('unlockBtn');
+  var errorMsg  = document.getElementById('errorMsg');
+
+  /* 逐字浮现开场白 */
+  var i = 0;
+  var timer = setInterval(function () {
+    openingEl.textContent = openingText.slice(0, i + 1);
+    i++;
+    if (i >= openingText.length) {
+      clearInterval(timer);
+      openingEl.classList.add('done');
+      /* 打字结束后出现密码框 */
+      lockBox.classList.add('show');
+      lockBox.setAttribute('aria-hidden', 'false');
+      input.disabled = false;
+      btn.disabled = false;
+      input.focus();
+    }
+  }, 55);
+
+  /* 密码校验 */
+  function tryUnlock() {
+    var value = input.value.trim();
+    if (value === PASSWORD) {
+      window.location.href = NEXT_PAGE;
+    } else {
+      errorMsg.classList.add('show');
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { tryUnlock(); }
+  });
+  input.addEventListener('input', function () {
+    errorMsg.classList.remove('show');
+  });
+  btn.addEventListener('click', tryUnlock);
+</script>
+</body>
+</html>

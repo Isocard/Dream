@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>叶小美 · 个人简介</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%231a73e8'/%3E%3Ctext x='12' y='17' font-size='12' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3E叶%3C/text%3E%3C/svg%3E">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f6f8fb;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page {
+    width: min(720px, 92vw);
+    background: #fff;
+    margin: 40px auto;
+    border-radius: 14px;
+    box-shadow: 0 10px 34px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+
+  /* 头部 */
+  .head {
+    background: #1a73e8;
+    color: #fff;
+    padding: 40px 36px 32px;
+  }
+  .head .name {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: .08em;
+  }
+  .head .subtitle {
+    margin-top: 10px;
+    font-size: 15px;
+    color: rgba(255,255,255,.88);
+    letter-spacing: .04em;
+  }
+
+  .body { padding: 28px 36px 40px; }
+
+  .section { margin-bottom: 28px; }
+  .section:last-child { margin-bottom: 0; }
+
+  .sec-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a73e8;
+    letter-spacing: .1em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8f0fe;
+    margin-bottom: 16px;
+  }
+
+  /* 基本信息 */
+  .info-list { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+  .info-item {
+    display: flex;
+    gap: 8px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .info-item .k { color: #9aa0a6; white-space: nowrap; }
+  .info-item .v { color: #333; }
+
+  /* 荣誉列表 */
+  .honor-list { list-style: none; }
+  .honor-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 15px;
+    line-height: 1.9;
+    color: #333;
+  }
+  .honor-list li::before {
+    content: "";
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1a73e8;
+    transform: translateY(-2px);
+  }
+
+  /* 学术 */
+  .academic p { font-size: 15px; line-height: 1.9; color: #333; }
+  .academic .hl { color: #1a73e8; font-weight: 700; }
+
+  /* 经历 */
+  .story p { font-size: 15px; line-height: 2; color: #333; text-indent: 2em; }
+  .story .hl { color: #1a73e8; font-weight: 700; }
+</style>
+</head>
+<body>
+
+  <main class="page">
+    <header class="head">
+      <h1 class="name">叶小美</h1>
+      <p class="subtitle">xx大学心理学硕士 · 主攻心理梦境</p>
+    </header>
+
+    <div class="body">
+
+      <section class="section">
+        <h2 class="sec-title">基本信息</h2>
+        <div class="info-list">
+          <div class="info-item"><span class="k">出生日期</span><span class="v">1998 年 1 月 1 日</span></div>
+          <div class="info-item"><span class="k">学历</span><span class="v">xx大学心理学硕士</span></div>
+          <div class="info-item"><span class="k">研究方向</span><span class="v">心理梦境</span></div>
+          <div class="info-item"><span class="k">专业资格</span><span class="v">国家三级心理咨询师</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="sec-title">荣誉与奖项</h2>
+        <ul class="honor-list">
+          <li>xx大学最美毕业生</li>
+          <li>心理学学院“清隅”工程优秀学员</li>
+          <li>心理学学科建筑成就奖</li>
+        </ul>
+      </section>
+
+      <section class="section academic">
+        <h2 class="sec-title">学术成果</h2>
+        <p>多次在平台发表高质量论文，共<span class="hl">三篇</span>，均<span class="hl">占据平台热度第一</span>。</p>
+      </section>
+
+      <section class="section story">
+        <h2 class="sec-title">个人经历</h2>
+        <p>她家境贫困，却从未放弃学习。靠着<span class="hl">认真复盘错题</span>、<span class="hl">坚持不懈</span>，最终考上了xx省的双一流高校<span class="hl">xx大学</span>。</p>
+      </section>
+
+    </div>
+  </main>
+
+</body>
+</html>
