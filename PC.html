@@ -158,6 +158,21 @@
     min-width: 180px;
     flex-shrink: 0;
   }
+  .nav-back {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .nav-back:hover { background: #eee; }
   .address-bar input {
     border: none;
     outline: none;
@@ -330,6 +345,9 @@
           <div class="browser-dots"><span></span><span></span><span></span></div>
           <div class="browser-tabs" id="tabStrip"></div>
           <div class="address-bar">
+            <button class="nav-back" id="navBack" aria-label="后退">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
             <span class="lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
             <input id="addressInput" value="https://www.互联网.com" readonly>
           </div>
@@ -388,6 +406,7 @@
     { id: 'home', title: '互联网www', type: 'home', url: 'https://www.互联网.com' }
   ];
   var homeView = 'home'; /* home 标签内的视图：home 主页 / search 结果 */
+  var historyStack = ['home']; /* 浏览历史：网页打开顺序（tab id） */
 
   function getTab(id) {
     for (var i = 0; i < tabs.length; i++) {
@@ -444,6 +463,7 @@
     /* 已打开过同一网页则直接切到该标签 */
     for (var i = 0; i < tabs.length; i++) {
       if (tabs[i].type === 'page' && tabs[i].url === url) {
+        historyStack.push(tabs[i].id);
         activateTab(tabs[i].id);
         return;
       }
@@ -461,8 +481,41 @@
     holder.appendChild(iframe);
     document.getElementById('tabPages').appendChild(holder);
 
+    historyStack.push(id);
     activateTab(id);
   }
+
+  function goBack() {
+    /* 从浏览历史中移除当前标签的最近一次记录 */
+    var idx = historyStack.lastIndexOf(activeTabId);
+    if (idx > -1) historyStack.splice(idx, 1);
+
+    var cur = getTab(activeTabId);
+    if (cur && cur.type === 'home') {
+      /* 首页内：搜索结果 → 搜索主页 */
+      if (homeView === 'search') {
+        homeView = 'home';
+        activateTab('home');
+      }
+      /* 已是搜索主页：无可回退 */
+      return;
+    }
+
+    /* 当前是网页标签：关闭它，回到历史中的上一个网页 */
+    closeTab(activeTabId);
+    var lastTab = null;
+    for (var k = historyStack.length - 1; k >= 0; k--) {
+      var t = getTab(historyStack[k]);
+      if (t) { lastTab = t; break; }
+    }
+    if (lastTab) {
+      activateTab(lastTab.id);
+    } else {
+      activateTab('home');
+    }
+  }
+
+  document.getElementById('navBack').addEventListener('click', goBack);
 
   function closeTab(id) {
     var idx = -1;
