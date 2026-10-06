@@ -178,6 +178,42 @@
     font-size: 14px;
   }
 
+  /* ===== 帖子正文与评论区 ===== */
+  .post-content {
+    font-size: 15px;
+    line-height: 2;
+    color: #333;
+  }
+  .comments-title {
+    margin-top: 26px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f1f1f;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .comment { margin-top: 18px; }
+  .comment .c-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 13px;
+    color: #9aa0a6;
+  }
+  .comment .c-head .c-user { color: #1a73e8; font-weight: 600; font-size: 14px; }
+  .comment .c-text {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #333;
+  }
+  /* 嵌套回复 */
+  .comment .reply {
+    margin: 14px 0 0 22px;
+    padding-left: 14px;
+    border-left: 2px solid #e8ecf2;
+  }
+
   /* ===== 登录入口 ===== */
   .login-btn {
     font-size: 14px;
@@ -316,9 +352,25 @@
         <button class="close-btn" id="closeModal" aria-label="关闭">&#10005;</button>
       </div>
       <div class="modal-body">
-        <p class="modal-meta">匿名用户 · 今天</p>
-        <div class="modal-content">
-          <p class="placeholder">（正文待补充——后续剧情内容将在此显示）</p>
+        <p class="modal-meta">发帖人：美 · 2026年3月19日</p>
+
+        <div class="post-content">
+          <p>不知道为什么我总是能梦到同一个人，他是个高高的男生，长的很帅，但是印象里我根本就没见过他，但有种很熟悉的感觉。不知道为什么我问了我的导师他说是因为我在乎这个人（？）可是我根本就不认识他啊。我去图书馆翻了翻书，目前也没有一个合适的答案，不知道论坛里的人有没有遇到过这种事</p>
+        </div>
+
+        <h3 class="comments-title">评论</h3>
+
+        <div class="comment">
+          <div class="c-head"><span class="c-user">小伊</span><span class="c-time">2026年3月20日</span></div>
+          <p class="c-text">会不会是你前世的恋人啊，如果贴主信这些的话</p>
+          <div class="reply">
+            <div class="c-head"><span class="c-user">美</span><span class="c-time">2026年3月20日</span></div>
+            <p class="c-text">我其实不太相信这些，但现在我在读硕士都无法解释，反正现在啥理由我觉得都不太合适</p>
+            <div class="reply">
+              <div class="c-head"><span class="c-user">小伊</span><span class="c-time">2026年3月20日</span></div>
+              <p class="c-text">好吧，祝帖主好运</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
