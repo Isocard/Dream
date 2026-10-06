@@ -255,6 +255,59 @@
   }
   .chat-back:hover { background: rgba(255,255,255,.16); }
 
+  /* 聊天气泡 */
+  .chat-box { display: flex; flex-direction: column; gap: 10px; }
+  .bubble {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    word-break: break-word;
+  }
+  .bubble.left {
+    align-self: flex-start;
+    background: #f0f2f5;
+    color: #1f1f1f;
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.right {
+    align-self: flex-end;
+    background: #1a73e8;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  /* 文件消息气泡（可下载） */
+  .file-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .file-bubble.left {
+    background: #eef4fd;
+    color: #1a73e8;
+    border: 1px solid #c9d8fb;
+    border-bottom-left-radius: 4px;
+    font-weight: 600;
+  }
+  .file-bubble.right {
+    background: #e3eefc;
+    color: #1a73e8;
+    border: 1px solid #b9d2f6;
+    border-bottom-right-radius: 4px;
+    font-weight: 600;
+  }
+  .file-bubble:hover { opacity: .85; }
+  .sys-line {
+    align-self: center;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #9aa0a6;
+    letter-spacing: .04em;
+  }
+
   /* 解锁弹窗 */
   .lock-modal {
     position: fixed;
@@ -345,7 +398,8 @@
           <h2 class="sec-title">账号信息</h2>
           <div class="info-list">
             <div class="info-item"><span class="k">入站日期</span><span class="v">2026年3月19日 12:30:33</span></div>
-            <div class="info-item"><span class="k">简介</span><span class="v">心理学爱好者，上一次上线时间2026年7月12日</span></div>
+            <div class="info-item"><span class="k">简介</span><span class="v">心理学爱好者</span></div>
+            <div class="info-item"><span class="k">上次上线日期</span><span class="v">2026年7月12日</span></div>
           </div>
 
           <h2 class="sec-title">收藏的帖子</h2>
@@ -406,7 +460,8 @@
           <h2 id="chatTitle">小伊</h2>
         </div>
         <div class="msg-body">
-          <div class="msg-empty">暂无消息（剧情对话将在此显示）</div>
+          <div class="chat-box" id="chatMessages"></div>
+          <div class="msg-empty" id="chatEmpty">暂无消息（剧情对话将在此显示）</div>
         </div>
       </div>
     </div>
@@ -462,8 +517,64 @@
 
   function openChat(name) {
     document.getElementById('chatTitle').textContent = name;
+    var box = document.getElementById('chatMessages');
+    var empty = document.getElementById('chatEmpty');
+    var data = CHATS[name];
+    if (data) {
+      empty.style.display = 'none';
+      var html = '';
+      data.forEach(function (m) {
+        if (m.from === 'sys') {
+          html += '<div class="sys-line">' + m.text + '</div>';
+        } else if (m.type === 'file') {
+          html += '<a class="bubble file-bubble ' + (m.from === 'me' ? 'right' : 'left') + '" href="' + m.href + '" download>' +
+                  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>' +
+                  m.name + '</a>';
+        } else {
+          html += '<div class="bubble ' + (m.from === 'me' ? 'right' : 'left') + '">' + m.text + '</div>';
+        }
+      });
+      box.innerHTML = html;
+    } else {
+      box.innerHTML = '';
+      empty.style.display = 'block';
+    }
     showView('viewChat');
   }
+
+  /* 联系人对话内容（剧情对话改这里） */
+  var CHATS = {
+    '小伊': [
+      { from: 'xiaoyi', text: '在不' },
+      { from: 'me', text: '在，怎么了' },
+      { from: 'xiaoyi', text: '你需要老伯的联系方式不，挺灵的' },
+      { from: 'me', text: '？我可能需要，是微q吗？' },
+      { from: 'xiaoyi', text: '像这种聊用微q的很少，一般都是用微聊的啦' },
+      { from: 'me', text: '微聊？我记得是几年前的东西' },
+      { from: 'xiaoyi', text: '对啊，厉害的人都在那里' },
+      { from: 'me', text: '那行，号码是什么' },
+      { from: 'xiaoyi', text: '你先加我微q吧，我再推给你，我的号码是ys1998' },
+      { from: 'me', text: '行' },
+      { from: 'sys', text: '用户美已下线' }
+    ],
+    '摩耳甫斯': [
+      { from: 'other', text: '小美，你那个工程弄好了吗' },
+      { from: 'other', text: '我懒得开微q了，看到你论坛在线我就在这里发了' },
+      { from: 'me', text: '弄好了，咋了李哥咋没在微q聊着聊' },
+      { from: 'other', text: '弄好了弄好了，我就在这发给你吧' },
+      { from: 'other', type: 'file', name: 'pdf/yexiaomeiLunwen.pdf', href: 'yexiaomeiLunwen.pdf' },
+      { from: 'other', text: '对了，你的清隅工程好好吧' },
+      { from: 'me', text: '嗯行。对了李哥，我的简历弄好了吗？' },
+      { from: 'other', text: '那里啊，去那里你要注意安全' },
+      { from: 'me', text: '还可以啊，我打算去精神研究管理中心那里' },
+      { from: 'other', text: '要不然你再加5块，我帮你发到管理中心那里' },
+      { from: 'me', text: '好的李哥' },
+      { from: 'other', text: '好的，我这里还要去忙张导的事' },
+      { from: 'me', text: '呵呵那不用了李哥我自己会' },
+      { from: 'me', text: '那行，谢谢李哥' },
+      { from: 'sys', text: '用户美已下线' }
+    ]
+  };
 
   document.getElementById('navMsg').addEventListener('click', function () {
     showView('viewMsg');
