@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梦境论坛 · 个人中心</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231a73e8' d='M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z'/%3E%3Ccircle cx='8' cy='11' r='1.2' fill='%23fff'/%3E%3Ccircle cx='12' cy='11' r='1.2' fill='%23fff'/%3E%3Ccircle cx='16' cy='11' r='1.2' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f6f8fb;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    color: #222;
+    min-height: 100vh;
+  }
+
+  /* ===== 引导栏 ===== */
+  .navbar {
+    background: #1a73e8;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+  }
+  .nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .logo { font-size: 20px; font-weight: 700; letter-spacing: .06em; white-space: nowrap; }
+  .nav-links { display: flex; gap: 22px; flex: 1; }
+  .nav-item {
+    font-size: 15px;
+    color: #fff;
+    padding: 6px 2px;
+    cursor: default;
+    user-select: none;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-item:hover { border-bottom-color: rgba(255,255,255,.75); }
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 20px;
+    padding: 5px 14px 5px 6px;
+    white-space: nowrap;
+  }
+  .user-chip img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #fff;
+  }
+
+  /* ===== 个人中心 ===== */
+  .main { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+  .profile-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 34px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .profile-head {
+    background: #1a73e8;
+    color: #fff;
+    padding: 34px 36px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .profile-head .nick { font-size: 26px; font-weight: 700; letter-spacing: .06em; }
+  .profile-head .acc { margin-top: 8px; font-size: 14px; color: rgba(255,255,255,.88); }
+
+  .profile-body { padding: 28px 36px 36px; }
+
+  .sec-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a73e8;
+    letter-spacing: .1em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8f0fe;
+    margin-bottom: 16px;
+  }
+  .info-list { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+  .info-item { display: flex; gap: 8px; font-size: 15px; line-height: 1.8; }
+  .info-item .k { color: #9aa0a6; white-space: nowrap; }
+  .info-item .v { color: #333; }
+
+  .sec-title:not(:first-child) { margin-top: 28px; }
+
+  /* 收藏的帖子 */
+  .thread-list { list-style: none; }
+  .thread-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 12px 14px;
+    border: 1px solid #e6e8eb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+  }
+  .thread-item::before {
+    content: "";
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1a73e8;
+  }
+  .thread-item.openable { cursor: pointer; color: #1f1f1f; }
+  .thread-item.openable:hover { background: #f7faff; border-color: #c9d8fb; }
+  .thread-item.locked { cursor: default; color: #5f6368; }
+  .thread-item.locked::before { background: #bdc1c6; }
+
+  /* 退出登录 */
+  .logout-btn {
+    display: block;
+    width: 100%;
+    margin-top: 28px;
+    font-size: 15px;
+    color: #d93025;
+    background: #fff;
+    border: 1px solid #f0c6c3;
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    letter-spacing: .08em;
+    transition: background .2s ease;
+  }
+  .logout-btn:hover { background: #fdf2f1; }
+
+  /* 消息页 */
+  .view { display: none; }
+  .view.show { display: block; }
+  .msg-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 34px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .msg-head {
+    background: #1a73e8;
+    color: #fff;
+    padding: 24px 36px;
+  }
+  .msg-head h2 { font-size: 22px; font-weight: 700; letter-spacing: .1em; }
+  .msg-head p { margin-top: 6px; font-size: 13px; color: rgba(255,255,255,.85); }
+  .msg-body { padding: 20px 36px 36px; }
+  .msg-list { list-style: none; }
+  .msg-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 4px;
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .msg-item:last-child { border-bottom: none; }
+  .msg-item .m-dot {
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #1a73e8;
+    margin-top: 7px;
+  }
+  .msg-item .m-body { flex: 1; }
+  .msg-item .m-title { font-size: 15px; color: #1f1f1f; line-height: 1.6; }
+  .msg-item .m-time { margin-top: 4px; font-size: 13px; color: #9aa0a6; }
+  .msg-empty {
+    padding: 44px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #b0b6bc;
+    letter-spacing: .05em;
+  }
+
+  /* 联系人列表 */
+  .contact-list { list-style: none; }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 6px;
+    border-bottom: 1px solid #f0f2f5;
+    cursor: pointer;
+    user-select: none;
+  }
+  .contact-item:last-child { border-bottom: none; }
+  .contact-item:hover { background: #f8faff; }
+  .contact-item.locked .c-name { color: #5f6368; }
+  .c-avatar {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #1a73e8;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .c-avatar.alt { background: #7b61ff; }
+  .c-avatar.grey { background: #b0b6bc; }
+  .c-info { flex: 1; min-width: 0; }
+  .c-name { font-size: 15px; color: #1f1f1f; }
+  .c-desc { margin-top: 3px; font-size: 13px; color: #9aa0a6; }
+  .lock-badge {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #d93025;
+    border: 1px solid #f0c6c3;
+    border-radius: 12px;
+    padding: 3px 10px;
+  }
+
+  /* 对话视图 */
+  .chat-head { display: flex; align-items: center; gap: 16px; }
+  .chat-back {
+    background: none;
+    border: 1px solid rgba(255,255,255,.55);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .chat-back:hover { background: rgba(255,255,255,.16); }
+
+  /* 解锁弹窗 */
+  .lock-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  .lock-modal.open { display: flex; }
+  .lock-box {
+    width: 320px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 26px 26px 22px;
+    box-shadow: 0 16px 48px rgba(0,0,0,.22);
+  }
+  .lock-box h3 { font-size: 18px; color: #1f1f1f; }
+  .lock-box .lock-tip {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #9aa0a6;
+    line-height: 1.7;
+  }
+  .lock-box input {
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d5d9de;
+    border-radius: 8px;
+    outline: none;
+  }
+  .lock-box input:focus { border-color: #1a73e8; }
+  .lock-error {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #d93025;
+    display: none;
+  }
+  .lock-error.show { display: block; }
+  .lock-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .lock-btns button {
+    flex: 1;
+    padding: 9px 0;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .lock-cancel { background: #fff; color: #5f6368; border: 1px solid #d5d9de; }
+  .lock-submit { background: #1a73e8; color: #fff; border: 1px solid #1a73e8; }
+  .lock-submit:hover { background: #1765cc; }
+</style>
+</head>
+<body>
+
+  <!-- 引导栏（登录态） -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <div class="logo">梦境论坛</div>
+      <nav class="nav-links">
+        <span class="nav-item" id="navHome">首页</span>
+        <span class="nav-item" id="navThreads">论坛帖子</span>
+        <span class="nav-item" id="navPost">发布帖子</span>
+        <span class="nav-item" id="navMsg">消息</span>
+      </nav>
+      <div class="user-chip" id="chipBack">
+        <img src="assets/avatar-cute.png" alt="美">
+        <span>美</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- 个人中心视图 -->
+    <div class="view show" id="viewProfile">
+      <div class="profile-card">
+        <div class="profile-head">
+          <img class="avatar" src="assets/avatar-cute.png" alt="美头像">
+          <div>
+            <div class="nick">美</div>
+            <div class="acc">梦境论坛用户</div>
+          </div>
+        </div>
+
+        <div class="profile-body">
+          <h2 class="sec-title">账号信息</h2>
+          <div class="info-list">
+            <div class="info-item"><span class="k">入站日期</span><span class="v">2026年3月19日 12:30:33</span></div>
+            <div class="info-item"><span class="k">简介</span><span class="v">心理学爱好者，上一次上线时间2026年7月12日</span></div>
+          </div>
+
+          <h2 class="sec-title">收藏的帖子</h2>
+          <ul class="thread-list">
+            <li class="thread-item openable" id="favThread1">梦里常梦到同一个人的原因</li>
+            <li class="thread-item locked" id="favThread2">准备高考了，但最近总是做噩梦怎么办</li>
+          </ul>
+
+          <button class="logout-btn" id="logoutBtn">退出登录</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 消息视图 -->
+    <div class="view" id="viewMsg">
+      <div class="msg-card">
+        <div class="msg-head">
+          <h2>消息</h2>
+          <p>联系人</p>
+        </div>
+        <div class="msg-body">
+          <ul class="contact-list" id="contactList">
+            <li class="contact-item" data-name="小伊">
+              <span class="c-avatar">小</span>
+              <div class="c-info">
+                <div class="c-name">小伊</div>
+                <div class="c-desc">私信</div>
+              </div>
+            </li>
+            <li class="contact-item" data-name="摩耳甫斯">
+              <span class="c-avatar alt">摩</span>
+              <div class="c-info">
+                <div class="c-name">摩耳甫斯</div>
+                <div class="c-desc">私信</div>
+              </div>
+            </li>
+            <li class="contact-item locked" data-name="xxx" id="contactXxx">
+              <span class="c-avatar grey">?</span>
+              <div class="c-info">
+                <div class="c-name">xxx</div>
+                <div class="c-desc">已上锁，点击输入密码</div>
+              </div>
+              <span class="lock-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                已上锁
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 对话视图 -->
+    <div class="view" id="viewChat">
+      <div class="msg-card">
+        <div class="msg-head chat-head">
+          <button class="chat-back" id="chatBack">← 返回</button>
+          <h2 id="chatTitle">小伊</h2>
+        </div>
+        <div class="msg-body">
+          <div class="msg-empty">暂无消息（剧情对话将在此显示）</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 解锁弹窗 -->
+  <div class="lock-modal" id="lockModal">
+    <div class="lock-box">
+      <h3>私密会话</h3>
+      <p class="lock-tip">与「xxx」的会话已上锁，请输入密码解锁</p>
+      <input type="password" id="lockInput" placeholder="请输入密码" autocomplete="off">
+      <p class="lock-error" id="lockError">密码错误</p>
+      <div class="lock-btns">
+        <button class="lock-cancel" id="lockCancel">取消</button>
+        <button class="lock-submit" id="lockSubmit">解锁</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var FAV_1_PAGE = 'thread-dream-why.html'; /* 「梦里常梦到同一个人的原因」（网页待写，改这里） */
+  var FORUM_PAGE  = 'HomepageDream.html';  /* 论坛首页 */
+
+  /* 登录状态校验：未登录（含已退出）不允许直接进入本页 */
+  var logged = false;
+  try { logged = localStorage.getItem('dream_forum_logged') === '1'; } catch (e) {}
+  if (!logged) {
+    window.location.replace(FORUM_PAGE);
+  }
+
+  document.getElementById('favThread1').addEventListener('click', function () {
+    window.location.href = FAV_1_PAGE;
+  });
+
+  document.getElementById('favThread2').addEventListener('click', function () {
+    /* 无操作：该帖子打不开 */
+  });
+
+  /* 退出登录：清空登录状态，返回论坛，需重新输入密码才能再进入 */
+  document.getElementById('logoutBtn').addEventListener('click', function () {
+    try { localStorage.removeItem('dream_forum_logged'); } catch (e) {}
+    window.location.href = FORUM_PAGE;
+  });
+
+  /* ===== 消息页视图切换 ===== */
+  var LOCK_PASSWORD = '94536'; /* 「xxx」私密会话的解锁密码 */
+
+  function showView(id) {
+    document.getElementById('viewProfile').classList.toggle('show', id === 'viewProfile');
+    document.getElementById('viewMsg').classList.toggle('show', id === 'viewMsg');
+    document.getElementById('viewChat').classList.toggle('show', id === 'viewChat');
+  }
+
+  function openChat(name) {
+    document.getElementById('chatTitle').textContent = name;
+    showView('viewChat');
+  }
+
+  document.getElementById('navMsg').addEventListener('click', function () {
+    showView('viewMsg');
+  });
+
+  /* 头像/昵称：返回个人中心视图 */
+  document.getElementById('chipBack').addEventListener('click', function () { showView('viewProfile'); });
+
+  /* 联系人：小伊、摩耳甫斯可打开（对话内容预留） */
+  var openableContacts = document.querySelectorAll('.contact-item:not(.locked)');
+  for (var i = 0; i < openableContacts.length; i++) {
+    openableContacts[i].addEventListener('click', function () {
+      openChat(this.getAttribute('data-name'));
+    });
+  }
+
+  /* 联系人「xxx」：已上锁，需密码 */
+  document.getElementById('contactXxx').addEventListener('click', function () {
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockError').classList.remove('show');
+    document.getElementById('lockModal').classList.add('open');
+    document.getElementById('lockInput').focus();
+  });
+
+  var lockModal = document.getElementById('lockModal');
+  var lockInput = document.getElementById('lockInput');
+  var lockError = document.getElementById('lockError');
+
+  function closeLockModal() {
+    lockModal.classList.remove('open');
+    lockError.classList.remove('show');
+  }
+  function submitLock() {
+    if (lockInput.value === LOCK_PASSWORD) {
+      closeLockModal();
+      openChat('xxx');
+    } else {
+      lockError.classList.add('show');
+      lockInput.value = '';
+      lockInput.focus();
+    }
+  }
+
+  document.getElementById('lockSubmit').addEventListener('click', submitLock);
+  document.getElementById('lockCancel').addEventListener('click', closeLockModal);
+  lockInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { submitLock(); }
+  });
+  lockModal.addEventListener('click', function (e) {
+    if (e.target === lockModal) { closeLockModal(); }
+  });
+
+  /* 对话视图返回 */
+  document.getElementById('chatBack').addEventListener('click', function () { showView('viewMsg'); });
+</script>
+</body>
+</html>

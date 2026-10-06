@@ -423,7 +423,7 @@
   });
 
   /* ===== 登录 ===== */
-  var NEXT_PAGE = 'next.html'; /* 登录成功后的跳转目标（待定，改这里） */
+  var NEXT_PAGE = 'yxmaccountHPD.html'; /* 登录成功后的跳转目标 */
   var CORRECT_ACCOUNT = '美';
   var CORRECT_PASSWORD = 'yxm19980101';
 
@@ -438,6 +438,7 @@
     var acc = document.getElementById('loginAccount').value.trim();
     var pwd = document.getElementById('loginPassword').value;
     if (acc === CORRECT_ACCOUNT && pwd === CORRECT_PASSWORD) {
+      try { localStorage.setItem('dream_forum_logged', '1'); } catch (e) {}
       window.location.href = NEXT_PAGE;
     } else {
       loginError.classList.add('show');
